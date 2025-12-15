@@ -1,0 +1,10 @@
+# Folders
+/Debug/
+/Release/
+/.vs/
+
+# Files
+*.vcxproj.filters
+*.vcxproj.user
+*.exe
+*.msi
