@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
 			if (SDL_GameControllerGetAttached(game_controllers[i]) == SDL_FALSE){
 				remove_game_controller(game_controllers, i);
 				remove_emulated_controller(vigem_client, emulated_controllers, i);
-				i--;
+				break;
 			}
 			else{
 				controller_type = SDL_GameControllerGetType(game_controllers[i]);

@@ -1,4 +1,5 @@
 #include <HidHide.h>
+#define guid_size 33
 
 // ==========> ViGEmClient Functions <========== \\
 
@@ -11,7 +12,7 @@ void add_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &
 
 // Removes a X360 emulated controller from a given vector
 void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, int index){
-	if (emulated_controllers.size() <= index + 1){
+	if (index < emulated_controllers.size()){
 		vigem_target_remove(vigem_client, emulated_controllers[index]);
 		vigem_target_free(emulated_controllers[index]);
 		emulated_controllers.erase(emulated_controllers.begin() + index);
@@ -22,21 +23,24 @@ void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET
 // ==========> SDL Functions <========== \\
 
 // Compares Two given GUID's (Returns a boolean)
-bool compare_guids(SDL_GUID guid, SDL_GUID prev_guid){
-	char guid_string[33];
-	char prev_guid_string[33];
-	SDL_GUIDToString(guid, guid_string, sizeof(guid_string));
-	SDL_GUIDToString(prev_guid, prev_guid_string, sizeof(prev_guid_string));
-	return strcmp(guid_string, prev_guid_string);
+bool compare_guids(SDL_JoystickGUID guid1, SDL_JoystickGUID guid2){
+	char guid_string1[guid_size];
+	char guid_string2[guid_size];
+	SDL_JoystickGetGUIDString(guid1, guid_string1, guid_size);
+	SDL_JoystickGetGUIDString(guid2, guid_string2, guid_size);
+	return !strcmp(guid_string1, guid_string2);
 }
 
 // Gets if a given GUID does exists in a given vector (Returns a boolean)
-bool controller_guid_exists(vector<SDL_GameController*> game_controllers, SDL_GUID guid){
+bool controller_guid_exists(vector<SDL_GameController*> game_controllers, SDL_JoystickGUID guid){
 	bool exists = false;
 	SDL_Joystick* joystick;
-	for (int i = 0; i < game_controllers.size(); i++){
+	for (int i = (int)game_controllers.size() - 1; i >= 0; i--){
 		joystick = SDL_GameControllerGetJoystick(game_controllers[i]);
-		if (compare_guids(guid, SDL_JoystickGetGUID(joystick))) exists = true;
+		if (compare_guids(guid, SDL_JoystickGetGUID(joystick))){
+			exists = true;
+			break;
+		}
 	}
 	return exists;
 }
@@ -57,7 +61,7 @@ bool add_game_controller(vector<SDL_GameController*> &game_controllers, int inde
 
 // Removes the disconnected game controllers from a given vector
 void remove_game_controller(vector<SDL_GameController*> &game_controllers, int index){
-	if (game_controllers.size() <= index + 1){
+	if (index < game_controllers.size()){
 		SDL_GameControllerClose(game_controllers[index]);
 		game_controllers.erase(game_controllers.begin() + index);
 	}
