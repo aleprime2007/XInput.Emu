@@ -11,7 +11,7 @@ void add_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &
 
 // Removes a X360 emulated controller from a given vector
 void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, int index){
-	if (emulated_controllers.size() <= index + 1) {
+	if (emulated_controllers.size() <= index + 1){
 		vigem_target_remove(vigem_client, emulated_controllers[index]);
 		vigem_target_free(emulated_controllers[index]);
 		emulated_controllers.erase(emulated_controllers.begin() + index);
@@ -27,7 +27,7 @@ bool compare_guids(SDL_GUID guid, SDL_GUID prev_guid){
 	char prev_guid_string[33];
 	SDL_GUIDToString(guid, guid_string, sizeof(guid_string));
 	SDL_GUIDToString(prev_guid, prev_guid_string, sizeof(prev_guid_string));
-	return compare_strings(guid_string, prev_guid_string);
+	return strcmp(guid_string, prev_guid_string);
 }
 
 // Gets if a given GUID does exists in a given vector (Returns a boolean)
@@ -57,29 +57,8 @@ bool add_game_controller(vector<SDL_GameController*> &game_controllers, int inde
 
 // Removes the disconnected game controllers from a given vector
 void remove_game_controller(vector<SDL_GameController*> &game_controllers, int index){
-	if (game_controllers.size() <= index + 1) {
+	if (game_controllers.size() <= index + 1){
 		SDL_GameControllerClose(game_controllers[index]);
 		game_controllers.erase(game_controllers.begin() + index);
 	}
-}
-
-// Returns the inverted value of the given axis
-Sint16 invert_axis(Sint16 axis){
-	return -axis - 1;
-}
-
-// Prints the information of the game controllers of a given vector
-void print_controllers_info(PVIGEM_CLIENT vigem_client, vector<SDL_GameController*> game_controllers, vector<PVIGEM_TARGET> emulated_controllers){
-	wstring hidhide_path;
-	if (get_hidhide_path(hidhide_path)) cout << "HidHide Path : " << convert_wstring_to_string(hidhide_path) << endl;
-	cout << "Game Controllers Connected : " << game_controllers.size() << endl;
-	cout << "Emulated Controllers Count : " << emulated_controllers.size() << endl;
-
-	DWORD xinput_index;
-	for (int i = 0; i < game_controllers.size(); i++){
-		vigem_target_x360_get_user_index(vigem_client, emulated_controllers[i], &xinput_index);
-		cout << "Index " << i << " : XInput Index " << xinput_index << " : " << SDL_GameControllerName(game_controllers[i]) << endl;
-	}
-	cout << endl;
-
 }

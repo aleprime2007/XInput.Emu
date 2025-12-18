@@ -16,16 +16,6 @@ using namespace std;
 
 // ==========> Common Functions <========== \\
 
-// Compares Two given strings (char*) (Returns a boolean)
-bool compare_strings(char* str, char* prev_str){
-	return (string)str == (string)prev_str;
-}
-
-// Compares Two given strings (const char*) (Returns a boolean)
-bool compare_strings(const char* str, const char* prev_str){
-	return (string)str == (string)prev_str;
-}
-
 // Converts a Wide String to a String
 string convert_wstring_to_string(const wstring &wstr){
 	try{
