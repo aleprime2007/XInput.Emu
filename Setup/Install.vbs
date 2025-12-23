@@ -1,4 +1,4 @@
 Set ShellObj = CreateObject("WScript.Shell")
-ShellObj.Run """C:\Program Files\XInput.Emu\Install.bat""", 0, True
-Msg = MsgBox("It's necesary to restart your PC. Do you want to restart your PC now?", 48+4, "")
-If Msg = vbYes Then ShellObj.Run "shutdown /r /t 0", 0, True
+ShellObj.Run "sc create XInput.Emu binPath= ""C:\Program Files\XInput.Emu\XInput.Emu.exe"" start= auto", 0, True
+ShellObj.Run "sc description XInput.Emu ""A service for Windows that allows to automatically emulate any controller as a Xbox 360 Controller""", 0, True
+ShellObj.Run "sc start XInput.Emu", 0, True

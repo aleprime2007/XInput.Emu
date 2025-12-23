@@ -1,12 +1,12 @@
 #define WIN32_LEAN_AND_MEAN
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <locale>
 #include <codecvt>
 #include <SDL.h>
 #include <Windows.h>
+#include <tchar.h>
 #include <shellapi.h>
 #include <Xinput.h>
 #include <ViGEm/Client.h>
@@ -40,19 +40,6 @@ wstring convert_string_to_wstring(const string &str){
 
 
 // ==========> Windows Functions <========== \\
-
-// Cecks if running as SYSTEM (returns a boolean)
-bool is_running_as_system(){
-	bool is_system = false;
-	PSID system_sid = nullptr;
-	SID_IDENTIFIER_AUTHORITY nt_authority = SECURITY_NT_AUTHORITY;
-	if (AllocateAndInitializeSid(&nt_authority, 1, SECURITY_LOCAL_SYSTEM_RID, 0, 0, 0, 0, 0, 0, 0, &system_sid)){
-		BOOL result = FALSE;
-		if (CheckTokenMembership(NULL, system_sid, &result)) is_system = (result == TRUE);
-	}
-	if (system_sid) FreeSid(system_sid);
-	return is_system;
-}
 
 // Returns True if the given Register Key Exists
 bool register_key_exists(HKEY hkey, LPCWSTR path){

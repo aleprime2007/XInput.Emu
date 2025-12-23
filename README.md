@@ -1,6 +1,6 @@
 # XInput.Emu 
 
-XInput.Emu is a program for Windows that allows to automatically emulate any controller as a Xbox 360 Controller, without needing to configure anything. While XInput.Emu runs in background, it detects which controllers are connected and connect a Xbox 360 Emulated Controller for each one of them.
+XInput.Emu is a service for Windows that allows to automatically emulate any controller as a Xbox 360 Controller, without needing to configure anything. While XInput.Emu runs in background, it detects which controllers are connected and connect a Xbox 360 Emulated Controller for each one of them.
 
 <h2>How does XInput.Emu work?</h2>
 
