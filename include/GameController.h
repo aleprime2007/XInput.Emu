@@ -93,7 +93,7 @@ bool add_game_controller(vector<SDL_GameController*> &game_controllers, int inde
 	return result;
 }
 
-void update_xinput_state(vector<SDL_GameController*> game_controllers, int index, XINPUT_STATE &xinput_state, Sint16 &t_LT, Sint16& t_RT, bool sw_ctrl = false){
+void update_xinput_state(vector<SDL_GameController*> game_controllers, int index, XINPUT_STATE &xinput_state, Sint16 &t_LT, Sint16 &t_RT, bool sw_ctrl = false){
 
 	//Triggers
 	t_LT = SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 128;

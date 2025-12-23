@@ -1,4 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
+#define execution_delay 8
 
 #include <string>
 #include <vector>

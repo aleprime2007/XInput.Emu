@@ -1,23 +1,8 @@
 #include <GameController.h>
-#define execution_delay 8
 
-// Controllers
+bool executing = true;
 vector<SDL_GameController*> game_controllers;
 vector<PVIGEM_TARGET> emulated_controllers;
-
-// Init
-PVIGEM_CLIENT vigem_client = vigem_alloc();
-const VIGEM_ERROR vigem_error = vigem_connect(vigem_client);
-int sdl_error = SDL_Init(SDL_INIT_GAMECONTROLLER);
-bool has_init = sdl_error >= 0 && vigem_client != nullptr && VIGEM_SUCCESS(vigem_error);
-bool executing = true;
-wchar_t app_path[32768];
-
-const wstring error_msg =
-	(wstring)L"ERROR: The program Could not initialize correctly\n" +
-	(wstring)L"SDL Error: " + convert_string_to_wstring((string)SDL_GetError()) + (wstring)L"\n" +
-	(wstring)L"ViGEm Error: " + to_wstring(vigem_error);
-
 SDL_Event event;
 SDL_GameControllerType controller_type;
 XINPUT_STATE xinput_state;
@@ -25,8 +10,6 @@ DWORD xinput_index;
 bool sw_ctrl;
 Sint16 t_LT;
 Sint16 t_RT;
-
-// ==========> C++ Functions <========== \\
 
 // Callback for Force Feedback
 VOID CALLBACK force_feedback_callback(
@@ -46,18 +29,30 @@ SERVICE_STATUS g_ServiceStatus = { 0 };
 SERVICE_STATUS_HANDLE g_StatusHandle = NULL;
 HANDLE g_ServiceStopEvent = INVALID_HANDLE_VALUE;
 
-VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv);
-VOID WINAPI ServiceCtrlHandler(DWORD);
-void ReportServiceStatus(DWORD, DWORD, DWORD);
+void ReportServiceStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWaitHint){
+	static DWORD dwCheckPoint = 1;
+	g_ServiceStatus.dwCurrentState = dwCurrentState;
+	g_ServiceStatus.dwWin32ExitCode = dwWin32ExitCode;
+	g_ServiceStatus.dwWaitHint = dwWaitHint;
 
-int _tmain(int argc, TCHAR* argv[]){
-	SERVICE_TABLE_ENTRY ServiceTable[] = {
-		{(TCHAR*)L"XInput.Emu", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
-		{NULL, NULL}
-	};
+	g_ServiceStatus.dwControlsAccepted = dwCurrentState != SERVICE_START_PENDING;
 
-	if (StartServiceCtrlDispatcher(ServiceTable) == FALSE) return GetLastError();
-	return 0;
+	if (dwCurrentState == SERVICE_RUNNING || dwCurrentState == SERVICE_STOPPED) g_ServiceStatus.dwCheckPoint = 0;
+	else g_ServiceStatus.dwCheckPoint = dwCheckPoint++;
+
+	SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+}
+
+VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode){
+	switch (CtrlCode){
+		case SERVICE_CONTROL_STOP:
+			if (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
+				executing = false;
+				ReportServiceStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
+				SetEvent(g_ServiceStopEvent);
+			}
+			break;
+	}
 }
 
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
@@ -76,7 +71,18 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	}
 	ReportServiceStatus(SERVICE_RUNNING, NO_ERROR, 0);
 
+	// Init
+	PVIGEM_CLIENT vigem_client = vigem_alloc();
+	const VIGEM_ERROR vigem_error = vigem_connect(vigem_client);
+	int sdl_error = SDL_Init(SDL_INIT_GAMECONTROLLER);
+	bool has_init = sdl_error >= 0 && vigem_client != nullptr && VIGEM_SUCCESS(vigem_error);
+	const wstring error_msg =
+		(wstring)L"ERROR: The program Could not initialize correctly\n"                              +
+		(wstring)L"SDL Error: " + convert_string_to_wstring((string)SDL_GetError()) + (wstring)L"\n" +
+		(wstring)L"ViGEm Error: " + to_wstring(vigem_error)                                          ;
+
 	if (has_init){
+		wchar_t app_path[32768];
 		GetModuleFileName(NULL, app_path, 32768);
 		hidhide_app_reg(app_path);
 
@@ -129,29 +135,12 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	ReportServiceStatus(SERVICE_STOPPED, has_init ? NO_ERROR : ERROR, 0);
 }
 
-VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode){
-	switch (CtrlCode){
-		case SERVICE_CONTROL_STOP:
-			if (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
-				executing = false;
-				ReportServiceStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
-				SetEvent(g_ServiceStopEvent);
-			}
-			break;
-	}
-}
+int _tmain(int argc, TCHAR* argv[]){
+	SERVICE_TABLE_ENTRY ServiceTable[] = {
+		{(TCHAR*)L"XInput.Emu", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
+		{NULL, NULL}
+	};
 
-void ReportServiceStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWaitHint){
-	static DWORD dwCheckPoint = 1;
-	g_ServiceStatus.dwCurrentState = dwCurrentState;
-	g_ServiceStatus.dwWin32ExitCode = dwWin32ExitCode;
-	g_ServiceStatus.dwWaitHint = dwWaitHint;
-
-	if (dwCurrentState == SERVICE_START_PENDING) g_ServiceStatus.dwControlsAccepted = 0;
-	else g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
-
-	if ((dwCurrentState == SERVICE_RUNNING) || (dwCurrentState == SERVICE_STOPPED)) g_ServiceStatus.dwCheckPoint = 0;
-	else g_ServiceStatus.dwCheckPoint = dwCheckPoint++;
-
-	SetServiceStatus(g_StatusHandle, &g_ServiceStatus);
+	if (StartServiceCtrlDispatcher(ServiceTable) == FALSE) return GetLastError();
+	return 0;
 }
