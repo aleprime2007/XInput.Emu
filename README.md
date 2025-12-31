@@ -4,7 +4,7 @@ XInput.Emu is a service for Windows that allows to automatically emulate any con
 
 <h2>How does XInput.Emu work?</h2>
 
-XInput.Emu uses [Simple DirectMedia Layer (SDL) Version 2.0](https://github.com/libsdl-org/SDL/tree/SDL2) for controller detection and [ViGEm Client](https://github.com/nefarius/ViGEmClient) for controller emulation. Also, XInput.Emu uses [HidHide](https://github.com/nefarius/HidHide) for device hiding (Optional). SDL gets the value of the controllers axis and buttons and ViGEm Client updates the state of the Xbox 360 Emulated Controllers.
+XInput.Emu uses [Simple DirectMedia Layer (SDL)](https://github.com/libsdl-org/SDL) for controller detection and [ViGEm Client](https://github.com/nefarius/ViGEmClient) for controller emulation. Also, XInput.Emu uses [HidHide](https://github.com/nefarius/HidHide) for device hiding (Optional). SDL gets the value of the controllers axis and buttons and ViGEm Client updates the state of the Xbox 360 Emulated Controllers.
 
 <h2>Installation Process</h2>
 Before installing XInput.Emu, you must install some dependencies in order to get XInput.Emu working correctly:
