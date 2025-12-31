@@ -1,11 +1,10 @@
 #define WIN32_LEAN_AND_MEAN
-#define execution_delay 8
 
 #include <string>
 #include <vector>
 #include <locale>
 #include <codecvt>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <Windows.h>
 #include <tchar.h>
 #include <shellapi.h>

@@ -15,13 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_04DA35EC0004475889A0EE0C59254635"
+        "MsmKey" = "8:_025A78FAF211413886277BD7D6BC714F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_77A31C878ACE475CA7B01695DA296910"
+        "MsmKey" = "8:_04DA35EC0004475889A0EE0C59254635"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -33,13 +33,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DE503239C507447CB3189A6B3A21E1C1"
+        "MsmKey" = "8:_E07E09C2DE3247B0BF81077C4266858A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E07E09C2DE3247B0BF81077C4266858A"
+        "MsmKey" = "8:_E49F7DC7589C4E1CA209390FDB2B2F67"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -165,6 +165,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_025A78FAF211413886277BD7D6BC714F"
+            {
+            "SourcePath" = "8:..\\lib\\x64\\SDL3.dll"
+            "TargetName" = "8:SDL3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_04DA35EC0004475889A0EE0C59254635"
             {
             "SourcePath" = "8:Readme.rtf"
@@ -182,26 +202,6 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_77A31C878ACE475CA7B01695DA296910"
-            {
-            "SourcePath" = "8:..\\lib\\SDL2.dll"
-            "TargetName" = "8:SDL2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
@@ -225,9 +225,9 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE503239C507447CB3189A6B3A21E1C1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E49F7DC7589C4E1CA209390FDB2B2F67"
             {
-            "SourcePath" = "8:..\\lib\\ViGEmClient.dll"
+            "SourcePath" = "8:..\\lib\\x64\\ViGEmClient.dll"
             "TargetName" = "8:ViGEmClient.dll"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
@@ -321,15 +321,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:XInput.Emu"
-        "ProductCode" = "8:{1C4871B2-BCF2-49FD-9CA1-F68A8F16A838}"
-        "PackageCode" = "8:{57037E53-01D9-4B0D-BD85-CC807010E073}"
+        "ProductCode" = "8:{BAA22470-F372-4116-A3E5-FAD8CDFED339}"
+        "PackageCode" = "8:{99A0AE26-8309-40BC-94EE-2D3E1E1DDF5C}"
         "UpgradeCode" = "8:{A36D420D-EB3A-4A6C-B275-CF2FE399E37E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.1.1"
+        "ProductVersion" = "8:1.2.0"
         "Manufacturer" = "8:aleprime2007"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/aleprime2007/XInput.Emu"
@@ -824,7 +824,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E07E09C2DE3247B0BF81077C4266858A"
             {
-            "SourcePath" = "8:..\\Release\\XInput.Emu.exe"
+            "SourcePath" = "8:..\\x64\\Release\\XInput.Emu.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"

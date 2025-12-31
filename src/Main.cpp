@@ -1,13 +1,15 @@
 #include <GameController.h>
+#define execution_delay 8
+#define app_name L"XInput.Emu"
 
-bool executing = true;
-vector<SDL_GameController*> game_controllers;
+vector<SDL_Gamepad*> game_controllers;
 vector<PVIGEM_TARGET> emulated_controllers;
 SDL_Event event;
-SDL_GameControllerType controller_type;
+SDL_Gamepad* game_controller;
+SDL_GamepadType controller_type;
 XINPUT_STATE xinput_state;
 DWORD xinput_index;
-bool sw_ctrl;
+bool is_switch_controller;
 Sint16 t_LT;
 Sint16 t_RT;
 
@@ -20,9 +22,7 @@ VOID CALLBACK force_feedback_callback(
 	UCHAR LedNumber,
 	LPVOID UserData
 ){
-	for (int i = 0; i < emulated_controllers.size(); i++) 
-	if (emulated_controllers[i] == Target) 
-	SDL_GameControllerRumble(game_controllers[i], SmallMotor, LargeMotor, execution_delay);
+	SDL_RumbleGamepad(game_controller, (SmallMotor + 1) * 256 - 1, (LargeMotor + 1) * 256 - 1, execution_delay);
 }
 
 SERVICE_STATUS g_ServiceStatus = { 0 };
@@ -47,7 +47,6 @@ VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode){
 	switch (CtrlCode){
 		case SERVICE_CONTROL_STOP:
 			if (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
-				executing = false;
 				ReportServiceStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
 				SetEvent(g_ServiceStopEvent);
 			}
@@ -56,7 +55,7 @@ VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode){
 }
 
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
-	g_StatusHandle = RegisterServiceCtrlHandler(L"XInput.Emu", ServiceCtrlHandler);
+	g_StatusHandle = RegisterServiceCtrlHandler(app_name, ServiceCtrlHandler);
 
 	if (g_StatusHandle == NULL) return;
 
@@ -71,62 +70,65 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	}
 	ReportServiceStatus(SERVICE_RUNNING, NO_ERROR, 0);
 
-	// Init
+	//Init ViGEm
 	PVIGEM_CLIENT vigem_client = vigem_alloc();
 	const VIGEM_ERROR vigem_error = vigem_connect(vigem_client);
-	int sdl_error = SDL_Init(SDL_INIT_GAMECONTROLLER);
+	VIGEM_ERROR vigem_last_error;
+
+	//Init SDL
+	SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");
+	int sdl_error = SDL_Init(SDL_INIT_GAMEPAD);
+
+	DWORD win_last_error;
 	bool has_init = sdl_error >= 0 && vigem_client != nullptr && VIGEM_SUCCESS(vigem_error);
 	const wstring error_msg =
 		(wstring)L"ERROR: The program Could not initialize correctly\n"                              +
 		(wstring)L"SDL Error: " + convert_string_to_wstring((string)SDL_GetError()) + (wstring)L"\n" +
 		(wstring)L"ViGEm Error: " + to_wstring(vigem_error)                                          ;
 
+	int index;
 	if (has_init){
 		wchar_t app_path[32768];
-		GetModuleFileName(NULL, app_path, 32768);
-		hidhide_app_reg(app_path);
-
-		while (executing){
+		win_last_error = GetModuleFileNameW(NULL, app_path, 32768);
+		wstring hidhide_path;
+		bool hidhide_exists = get_hidhide_path(hidhide_path);
+		if (hidhide_exists) hidhide_app_reg(hidhide_path.c_str(), app_path);
+		while (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
 			SDL_Delay(execution_delay);
-			SDL_PollEvent(&event);
-			SDL_GameControllerUpdate();
+			while (SDL_PollEvent(&event)){
+				if (event.cdevice.type == SDL_EVENT_GAMEPAD_ADDED)
+				if (add_game_controller(game_controllers, event.gdevice.which, hidhide_exists ? hidhide_path.c_str() : L""))
+				add_emulated_controller(vigem_client, emulated_controllers, vigem_last_error);
 
-			if (event.cdevice.type == SDL_CONTROLLERDEVICEADDED)
-			if (add_game_controller(game_controllers, event.cdevice.which))
-			add_emulated_controller(vigem_client, emulated_controllers);
+				for (index = 0; index < game_controllers.size(); index++)
+				if (!SDL_GamepadConnected(game_controllers[index])){
+					remove_game_controller(game_controllers, index);
+					remove_emulated_controller(vigem_client, emulated_controllers, index, vigem_last_error);
+					break;
+				}
+				else{
+					game_controller = game_controllers[index];
+					controller_type = SDL_GetGamepadType(game_controller);
+					vigem_last_error = vigem_target_x360_get_user_index(vigem_client, emulated_controllers[index], &xinput_index);
+					win_last_error = XInputGetState(xinput_index, &xinput_state);
 
-			for (int i = 0; i < game_controllers.size(); i++)
-			if (SDL_GameControllerGetAttached(game_controllers[i]) == SDL_FALSE){
-				remove_game_controller(game_controllers, i);
-				remove_emulated_controller(vigem_client, emulated_controllers, i);
-				break;
-			}
-			else{
-				controller_type = SDL_GameControllerGetType(game_controllers[i]);
-				vigem_target_x360_get_user_index(vigem_client, emulated_controllers[i], &xinput_index);
-				XInputGetState(xinput_index, &xinput_state);
-				sw_ctrl =
-					controller_type == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO          ||
-					controller_type == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT  ||
-					controller_type == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT ||
-					controller_type == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR  ;
+					update_xinput_gamepad(game_controller, xinput_state.Gamepad, t_LT, t_RT);
 
-				update_xinput_state(game_controllers, i, xinput_state, t_LT, t_RT, sw_ctrl);
+					//Update Controller State
+					vigem_last_error = vigem_target_x360_update(vigem_client, emulated_controllers[index], *reinterpret_cast<XUSB_REPORT*>(&xinput_state.Gamepad));
 
-				//Update Controller State
-				vigem_target_x360_update(vigem_client, emulated_controllers[i], *reinterpret_cast<XUSB_REPORT*>(&xinput_state.Gamepad));
-
-				//Vibration / Force Feedback
-				vigem_target_x360_register_notification(vigem_client, emulated_controllers[i], &force_feedback_callback, nullptr);
+					//Vibration / Force Feedback
+					vigem_last_error = vigem_target_x360_register_notification(vigem_client, emulated_controllers[index], &force_feedback_callback, nullptr);
+				}
 			}
 		}
 	}
-	else MessageBox(NULL, error_msg.c_str(), L"XInput.Emu", MB_OK | MB_ICONERROR | MB_SERVICE_NOTIFICATION);
+	else MessageBox(NULL, error_msg.c_str(), app_name, MB_OK | MB_ICONERROR | MB_SERVICE_NOTIFICATION);
 
 	if (vigem_client != nullptr && VIGEM_SUCCESS(vigem_error)){
-		for (int i = 0; i < emulated_controllers.size(); i++){
-			vigem_target_remove(vigem_client, emulated_controllers[i]);
-			vigem_target_free(emulated_controllers[i]);
+		for (index = 0; index < emulated_controllers.size(); index++){
+			vigem_last_error = vigem_target_remove(vigem_client, emulated_controllers[index]);
+			vigem_target_free(emulated_controllers[index]);
 		}
 		vigem_disconnect(vigem_client);
 		vigem_free(vigem_client);
@@ -137,7 +139,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 
 int _tmain(int argc, TCHAR* argv[]){
 	SERVICE_TABLE_ENTRY ServiceTable[] = {
-		{(TCHAR*)L"XInput.Emu", (LPSERVICE_MAIN_FUNCTION)ServiceMain},
+		{(TCHAR*)app_name, (LPSERVICE_MAIN_FUNCTION)ServiceMain},
 		{NULL, NULL}
 	};
 

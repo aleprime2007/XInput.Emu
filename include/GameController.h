@@ -2,21 +2,21 @@
 #define guid_size 33
 
 // SDL Buttons
-#define BTN_A     SDL_CONTROLLER_BUTTON_A
-#define BTN_B     SDL_CONTROLLER_BUTTON_B
-#define BTN_X     SDL_CONTROLLER_BUTTON_X
-#define BTN_Y     SDL_CONTROLLER_BUTTON_Y
-#define BTN_BK    SDL_CONTROLLER_BUTTON_BACK
-#define BTN_GD    SDL_CONTROLLER_BUTTON_GUIDE
-#define BTN_ST    SDL_CONTROLLER_BUTTON_START
-#define BTN_LS    SDL_CONTROLLER_BUTTON_LEFTSTICK
-#define BTN_RS    SDL_CONTROLLER_BUTTON_RIGHTSTICK
-#define BTN_LB    SDL_CONTROLLER_BUTTON_LEFTSHOULDER
-#define BTN_RB    SDL_CONTROLLER_BUTTON_RIGHTSHOULDER
-#define BTN_DP_UP SDL_CONTROLLER_BUTTON_DPAD_UP
-#define BTN_DP_DN SDL_CONTROLLER_BUTTON_DPAD_DOWN
-#define BTN_DP_L  SDL_CONTROLLER_BUTTON_DPAD_LEFT
-#define BTN_DP_R  SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+#define BTN_A     SDL_GAMEPAD_BUTTON_SOUTH
+#define BTN_B     SDL_GAMEPAD_BUTTON_EAST
+#define BTN_X     SDL_GAMEPAD_BUTTON_WEST
+#define BTN_Y     SDL_GAMEPAD_BUTTON_NORTH
+#define BTN_BK    SDL_GAMEPAD_BUTTON_BACK
+#define BTN_GD    SDL_GAMEPAD_BUTTON_GUIDE
+#define BTN_ST    SDL_GAMEPAD_BUTTON_START
+#define BTN_LS    SDL_GAMEPAD_BUTTON_LEFT_STICK
+#define BTN_RS    SDL_GAMEPAD_BUTTON_RIGHT_STICK
+#define BTN_LB    SDL_GAMEPAD_BUTTON_LEFT_SHOULDER
+#define BTN_RB    SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER
+#define BTN_DP_UP SDL_GAMEPAD_BUTTON_DPAD_UP
+#define BTN_DP_DN SDL_GAMEPAD_BUTTON_DPAD_DOWN
+#define BTN_DP_L  SDL_GAMEPAD_BUTTON_DPAD_LEFT
+#define BTN_DP_R  SDL_GAMEPAD_BUTTON_DPAD_RIGHT
 
 // XINPUT Buttons
 #define XBTN_A     XUSB_GAMEPAD_A
@@ -35,19 +35,19 @@
 #define XBTN_DP_L  XUSB_GAMEPAD_DPAD_LEFT
 #define XBTN_DP_R  XUSB_GAMEPAD_DPAD_RIGHT
 
+
 // ==========> ViGEmClient Functions <========== \\
 
 // Adds a X360 emuated controller to the given vector
-void add_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers){
-	PVIGEM_TARGET new_target = vigem_target_x360_alloc();
-	vigem_target_add(vigem_client, new_target);
-	emulated_controllers.insert(emulated_controllers.end(), new_target);
+void add_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, VIGEM_ERROR &vigem_last_error){
+	emulated_controllers.insert(emulated_controllers.end(), vigem_target_x360_alloc());
+	vigem_last_error = vigem_target_add(vigem_client, emulated_controllers[emulated_controllers.size() - 1]);
 }
 
 // Removes a X360 emulated controller from a given vector
-void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, int index){
+void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, int index, VIGEM_ERROR &vigem_last_error){
 	if (index < emulated_controllers.size()){
-		vigem_target_remove(vigem_client, emulated_controllers[index]);
+		vigem_last_error = vigem_target_remove(vigem_client, emulated_controllers[index]);
 		vigem_target_free(emulated_controllers[index]);
 		emulated_controllers.erase(emulated_controllers.begin() + index);
 	}
@@ -57,79 +57,69 @@ void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET
 // ==========> SDL Functions <========== \\
 
 // Compares Two given GUID's (Returns a boolean)
-bool compare_guids(SDL_JoystickGUID guid1, SDL_JoystickGUID guid2){
+bool compare_guids(SDL_GUID guid1, SDL_GUID guid2){
 	char guid_string1[guid_size];
 	char guid_string2[guid_size];
-	SDL_JoystickGetGUIDString(guid1, guid_string1, guid_size);
-	SDL_JoystickGetGUIDString(guid2, guid_string2, guid_size);
+	SDL_GUIDToString(guid1, guid_string1, guid_size);
+	SDL_GUIDToString(guid2, guid_string2, guid_size);
 	return !strcmp(guid_string1, guid_string2);
 }
 
-// Gets if a given GUID does exists in a given vector (Returns a boolean)
-bool controller_guid_exists(vector<SDL_GameController*> game_controllers, SDL_JoystickGUID guid){
-	bool exists = false;
-	SDL_Joystick* joystick;
-	for (int i = (int)game_controllers.size() - 1; i >= 0; i--){
-		joystick = SDL_GameControllerGetJoystick(game_controllers[i]);
-		if (compare_guids(guid, SDL_JoystickGetGUID(joystick))){
-			exists = true;
-			break;
-		}
-	}
-	return exists;
-}
-
 // Adds the connected game controllers to a given vector
-bool add_game_controller(vector<SDL_GameController*> &game_controllers, int index){
-	bool result = false;
-	SDL_GameControllerType controller_type = SDL_GameControllerTypeForIndex(index);
-	if (controller_type != SDL_CONTROLLER_TYPE_XBOX360 && controller_type != SDL_CONTROLLER_TYPE_XBOXONE){
-		hidhide_cloak_on();
-		hidhide_dev_hide(SDL_GameControllerPathForIndex(index));
-		result = !controller_guid_exists(game_controllers, SDL_JoystickGetDeviceGUID(index));
+bool add_game_controller(vector<SDL_Gamepad*> &game_controllers, SDL_JoystickID id, const wchar_t* hidhide_path){
+	if (wstring(hidhide_path) != wstring(L"")){
+		hidhide_cloak_on(hidhide_path);
+		hidhide_dev_hide(hidhide_path, SDL_GetGamepadPathForID(id));
 	}
-	if (result) game_controllers.insert(game_controllers.end(), SDL_GameControllerOpen(index));
-	else SDL_FlushEvent(SDL_CONTROLLERDEVICEADDED);
-	return result;
+	if (game_controllers.size() == 0){
+		game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
+		return true;
+	}
+	else if (!compare_guids(SDL_GetGamepadGUIDForID(SDL_GetGamepadID(game_controllers[game_controllers.size() - 1])), SDL_GetGamepadGUIDForID(id))){
+		game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
+		return true;
+	}
+	SDL_FlushEvent(SDL_EVENT_GAMEPAD_ADDED);
+	return false;
 }
 
-void update_xinput_state(vector<SDL_GameController*> game_controllers, int index, XINPUT_STATE &xinput_state, Sint16 &t_LT, Sint16 &t_RT, bool sw_ctrl = false){
+void update_xinput_gamepad(SDL_Gamepad* game_controller, XINPUT_GAMEPAD &xinput_gamepad, Sint16 &t_LT, Sint16 &t_RT){
 
 	//Triggers
-	t_LT = SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 128;
-	t_RT = SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 128;
+	t_LT = SDL_GetGamepadAxis(game_controller, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) / 128;
+	t_RT = SDL_GetGamepadAxis(game_controller, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) / 128;
 
 	//Axis
-	xinput_state.Gamepad.sThumbLX = SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_LEFTX);
-	xinput_state.Gamepad.sThumbLY = -SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_LEFTY) - 1;
-	xinput_state.Gamepad.sThumbRX = SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_RIGHTX);
-	xinput_state.Gamepad.sThumbRY = -SDL_GameControllerGetAxis(game_controllers[index], SDL_CONTROLLER_AXIS_RIGHTY) - 1;
-	xinput_state.Gamepad.bLeftTrigger = reinterpret_cast<const BYTE*>(&t_LT)[0];
-	xinput_state.Gamepad.bRightTrigger = reinterpret_cast<const BYTE*>(&t_RT)[0];
+	xinput_gamepad.sThumbLX = SDL_GetGamepadAxis(game_controller, SDL_GAMEPAD_AXIS_LEFTX);
+	xinput_gamepad.sThumbLY = -SDL_GetGamepadAxis(game_controller, SDL_GAMEPAD_AXIS_LEFTY) - 1;
+	xinput_gamepad.sThumbRX = SDL_GetGamepadAxis(game_controller, SDL_GAMEPAD_AXIS_RIGHTX);
+	xinput_gamepad.sThumbRY = -SDL_GetGamepadAxis(game_controller, SDL_GAMEPAD_AXIS_RIGHTY) - 1;
+	xinput_gamepad.bLeftTrigger = reinterpret_cast<const BYTE*>(&t_LT)[0];
+	xinput_gamepad.bRightTrigger = reinterpret_cast<const BYTE*>(&t_RT)[0];
 
 	//Buttons
-	xinput_state.Gamepad.wButtons =
-		SDL_GameControllerGetButton(game_controllers[index], sw_ctrl ? BTN_B : BTN_A) * XBTN_A     +
-		SDL_GameControllerGetButton(game_controllers[index], sw_ctrl ? BTN_A : BTN_B) * XBTN_B     +
-		SDL_GameControllerGetButton(game_controllers[index], sw_ctrl ? BTN_Y : BTN_X) * XBTN_X     +
-		SDL_GameControllerGetButton(game_controllers[index], sw_ctrl ? BTN_X : BTN_Y) * XBTN_Y     +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_BK)                  * XBTN_BK    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_GD)                  * XBTN_GD    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_ST)                  * XBTN_ST    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_LS)                  * XBTN_LS    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_RS)                  * XBTN_RS    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_LB)                  * XBTN_LB    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_RB)                  * XBTN_RB    +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_DP_UP)               * XBTN_DP_UP +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_DP_DN)               * XBTN_DP_DN +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_DP_L)                * XBTN_DP_L  +
-		SDL_GameControllerGetButton(game_controllers[index], BTN_DP_R)                * XBTN_DP_R  ;
+	xinput_gamepad.wButtons =
+		SDL_GetGamepadButton(game_controller, BTN_A)     * XBTN_A     +
+		SDL_GetGamepadButton(game_controller, BTN_B)     * XBTN_B     +
+		SDL_GetGamepadButton(game_controller, BTN_X)     * XBTN_X     +
+		SDL_GetGamepadButton(game_controller, BTN_Y)     * XBTN_Y     +
+		SDL_GetGamepadButton(game_controller, BTN_BK)    * XBTN_BK    +
+		SDL_GetGamepadButton(game_controller, BTN_GD)    * XBTN_GD    +
+		SDL_GetGamepadButton(game_controller, BTN_ST)    * XBTN_ST    +
+		SDL_GetGamepadButton(game_controller, BTN_LS)    * XBTN_LS    +
+		SDL_GetGamepadButton(game_controller, BTN_RS)    * XBTN_RS    +
+		SDL_GetGamepadButton(game_controller, BTN_LB)    * XBTN_LB    +
+		SDL_GetGamepadButton(game_controller, BTN_RB)    * XBTN_RB    +
+		SDL_GetGamepadButton(game_controller, BTN_DP_UP) * XBTN_DP_UP +
+		SDL_GetGamepadButton(game_controller, BTN_DP_DN) * XBTN_DP_DN +
+		SDL_GetGamepadButton(game_controller, BTN_DP_L)  * XBTN_DP_L  +
+		SDL_GetGamepadButton(game_controller, BTN_DP_R)  * XBTN_DP_R  ;
 }
 
 // Removes the disconnected game controllers from a given vector
-void remove_game_controller(vector<SDL_GameController*> &game_controllers, int index){
+void remove_game_controller(vector<SDL_Gamepad*> &game_controllers, int index){
 	if (index < game_controllers.size()){
-		SDL_GameControllerClose(game_controllers[index]);
+		SDL_CloseGamepad(game_controllers[index]);
 		game_controllers.erase(game_controllers.begin() + index);
 	}
 }
