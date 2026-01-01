@@ -3,7 +3,7 @@
 "VSVersion" = "3:800"
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
-"ProjectName" = "8:Setup"
+"ProjectName" = "8:Setup.x86"
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
@@ -57,7 +57,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:XInput.Emu.Setup.msi"
+        "OutputFilename" = "8:XInput.Emu.Setup.x86.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -89,7 +89,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:XInput.Emu.Setup.msi"
+        "OutputFilename" = "8:XInput.Emu.Setup.x86.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -148,7 +148,7 @@
             "Sequence" = "3:1"
             "Identifier" = "8:_AD04D923_E2F7_4D8B_BFB2_566B96DB1AD2"
             "InstallerClass" = "11:FALSE"
-            "CustomActionData" = "8:"
+            "CustomActionData" = "8:[TARGETDIR]"
             }
         }
         "DefaultFeature"
@@ -167,7 +167,7 @@
         {
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_025A78FAF211413886277BD7D6BC714F"
             {
-            "SourcePath" = "8:..\\lib\\x64\\SDL3.dll"
+            "SourcePath" = "8:..\\lib\\x86\\SDL3.dll"
             "TargetName" = "8:SDL3.dll"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
@@ -227,7 +227,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E49F7DC7589C4E1CA209390FDB2B2F67"
             {
-            "SourcePath" = "8:..\\lib\\x64\\ViGEmClient.dll"
+            "SourcePath" = "8:..\\lib\\x86\\ViGEmClient.dll"
             "TargetName" = "8:ViGEmClient.dll"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
@@ -273,7 +273,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_3AEB12CDF36647E99C8EB6C01EE5D327"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -321,15 +321,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:XInput.Emu"
-        "ProductCode" = "8:{BAA22470-F372-4116-A3E5-FAD8CDFED339}"
-        "PackageCode" = "8:{99A0AE26-8309-40BC-94EE-2D3E1E1DDF5C}"
+        "ProductCode" = "8:{C763A406-C7A7-4A58-B7DE-8C49D40DAC9C}"
+        "PackageCode" = "8:{C315DE48-E370-47C2-9A7B-17D750A1C3CD}"
         "UpgradeCode" = "8:{A36D420D-EB3A-4A6C-B275-CF2FE399E37E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.2.0"
+        "ProductVersion" = "8:1.2.1"
         "Manufacturer" = "8:aleprime2007"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/aleprime2007/XInput.Emu"
@@ -343,7 +343,7 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
-        "TargetPlatform" = "3:1"
+        "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
         "PostBuildEvent" = "8:"
         "RunPostBuildEvent" = "3:0"
@@ -485,7 +485,7 @@
                 {
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_0ED2E5564BCF4B4083689E514863F3D1"
                     {
-                    "Sequence" = "3:200"
+                    "Sequence" = "3:300"
                     "DisplayName" = "8:Confirm Installation"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -505,9 +505,31 @@
                             }
                         }
                     }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_5B52B085F00B44718EB801929B7E9D2D"
+                    {
+                    "Sequence" = "3:210"
+                    "DisplayName" = "8:Installation Folder"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdAdminFolderDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_80844DAF1A3D447287A3712E8FECCD44"
                     {
-                    "Sequence" = "3:110"
+                    "Sequence" = "3:200"
                     "DisplayName" = "8:Read Me"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -580,8 +602,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1202"
+                            "Setting" = "3:2"
+                            "Value" = "8:"
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -637,8 +659,8 @@
                             "Type" = "3:3"
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
-                            "Setting" = "3:1"
-                            "Value" = "8:#1202"
+                            "Setting" = "3:2"
+                            "Value" = "8:"
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -653,6 +675,41 @@
                             "Setting" = "3:1"
                             "Value" = "8:#1203"
                             "DefaultValue" = "8:#1203"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_49C5E787C1E146D8B67A36114529E8F3"
+                    {
+                    "Sequence" = "3:210"
+                    "DisplayName" = "8:Installation Folder"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdFolderDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "InstallAllUsersVisible"
+                            {
+                            "Name" = "8:InstallAllUsersVisible"
+                            "DisplayName" = "8:#1059"
+                            "Description" = "8:#1159"
+                            "Type" = "3:5"
+                            "ContextData" = "8:1;True=1;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:0"
+                            "DefaultValue" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -824,7 +881,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E07E09C2DE3247B0BF81077C4266858A"
             {
-            "SourcePath" = "8:..\\x64\\Release\\XInput.Emu.exe"
+            "SourcePath" = "8:..\\Win32\\Release\\XInput.Emu.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"

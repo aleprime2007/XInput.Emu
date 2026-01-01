@@ -6,10 +6,8 @@ vector<SDL_Gamepad*> game_controllers;
 vector<PVIGEM_TARGET> emulated_controllers;
 SDL_Event event;
 SDL_Gamepad* game_controller;
-SDL_GamepadType controller_type;
 XINPUT_STATE xinput_state;
 DWORD xinput_index;
-bool is_switch_controller;
 Sint16 t_LT;
 Sint16 t_RT;
 
@@ -55,7 +53,7 @@ VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode){
 }
 
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
-	g_StatusHandle = RegisterServiceCtrlHandler(app_name, ServiceCtrlHandler);
+	g_StatusHandle = RegisterServiceCtrlHandlerW(app_name, ServiceCtrlHandler);
 
 	if (g_StatusHandle == NULL) return;
 
@@ -96,7 +94,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 		while (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
 			SDL_Delay(execution_delay);
 			while (SDL_PollEvent(&event)){
-				if (event.cdevice.type == SDL_EVENT_GAMEPAD_ADDED)
+				if (event.gdevice.type == SDL_EVENT_GAMEPAD_ADDED)
 				if (add_game_controller(game_controllers, event.gdevice.which, hidhide_exists ? hidhide_path.c_str() : L""))
 				add_emulated_controller(vigem_client, emulated_controllers, vigem_last_error);
 
@@ -108,7 +106,6 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 				}
 				else{
 					game_controller = game_controllers[index];
-					controller_type = SDL_GetGamepadType(game_controller);
 					vigem_last_error = vigem_target_x360_get_user_index(vigem_client, emulated_controllers[index], &xinput_index);
 					win_last_error = XInputGetState(xinput_index, &xinput_state);
 
@@ -123,7 +120,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 			}
 		}
 	}
-	else MessageBox(NULL, error_msg.c_str(), app_name, MB_OK | MB_ICONERROR | MB_SERVICE_NOTIFICATION);
+	else MessageBoxW(NULL, error_msg.c_str(), app_name, MB_OK | MB_ICONERROR | MB_SERVICE_NOTIFICATION);
 
 	if (vigem_client != nullptr && VIGEM_SUCCESS(vigem_error)){
 		for (index = 0; index < emulated_controllers.size(); index++){

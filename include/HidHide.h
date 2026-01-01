@@ -1,3 +1,8 @@
+#if _M_X64
+#define hidhide_exe L"x64\\HidHideCLI.exe"
+#elif _M_IX86
+#define hidhide_exe L"HidHideCLI.exe"
+#endif
 
 // ==========> HidHide Functions <========== \\
 
@@ -28,61 +33,61 @@ string convert_to_device_instance_path(string device_symbolic_path){
 // Remove absent registered applications
 void hidhide_app_clean(const wchar_t* hidhide_path){
 	wstring command = L"--app-clean";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Grants ability to see hidden devices
 void hidhide_app_reg(const wchar_t* hidhide_path, const wchar_t* app_path){
 	wstring command = L"--app-reg \"" + (wstring)app_path + L"\"";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Revokes ability to see hidden devices
 void hidhide_app_unreg(const wchar_t* hidhide_path, const wchar_t* app_path) {
 	wstring command = L"--app-unreg \"" + (wstring)app_path + L"\"";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Deactivates hiding of HID devices
 void hidhide_cloak_off(const wchar_t* hidhide_path){
 	wstring command = L"--cloak-off";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Activates hiding of HID devices
 void hidhide_cloak_on(const wchar_t* hidhide_path){
 	wstring command = L"--cloak-on";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Toggles between active and inactive
 void hidhide_cloak_toggle(const wchar_t* hidhide_path){
 	wstring command = L"--cloak-toggle";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Hide the device specified
 void hidhide_dev_hide(const wchar_t* hidhide_path, const char* device_path){
 	string device_instance_path = convert_to_device_instance_path(device_path);
 	wstring command = L"--dev-hide \"" + convert_string_to_wstring(device_instance_path) + L"\"";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Unhide the device specified
 void hidhide_dev_unhide(const wchar_t* hidhide_path, const char* device_path){
 	string device_instance_path = convert_to_device_instance_path(device_path);
 	wstring command = L"--dev-unhide \"" + convert_string_to_wstring(device_instance_path) + L"\"";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Turn off inverse application list
 void hidhide_inv_off(const wchar_t* hidhide_path){
 	wstring command = L"--inv-off";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
 
 // Turn on inverse application list
 void hidhide_inv_on(const wchar_t* hidhide_path){
 	wstring command = L"--inv-on";
-	ShellExecute(NULL, L"open", L"x64\\HidHideCLI.exe", command.c_str(), hidhide_path, SW_HIDE);
+	ShellExecuteW(NULL, L"open", hidhide_exe, command.c_str(), hidhide_path, SW_HIDE);
 }
