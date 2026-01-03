@@ -35,6 +35,7 @@
 #define XBTN_DP_L  XUSB_GAMEPAD_DPAD_LEFT
 #define XBTN_DP_R  XUSB_GAMEPAD_DPAD_RIGHT
 
+unsigned short device_usage;
 
 // ==========> ViGEmClient Functions <========== \\
 
@@ -56,26 +57,11 @@ void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET
 
 // ==========> SDL Functions <========== \\
 
-// Compares Two given GUID's (Returns a boolean)
-bool compare_guids(SDL_GUID guid1, SDL_GUID guid2){
-	char guid_string1[guid_size];
-	char guid_string2[guid_size];
-	SDL_GUIDToString(guid1, guid_string1, guid_size);
-	SDL_GUIDToString(guid2, guid_string2, guid_size);
-	return !strcmp(guid_string1, guid_string2);
-}
-
 // Adds the connected game controllers to a given vector
 bool add_game_controller(vector<SDL_Gamepad*> &game_controllers, SDL_JoystickID id, const wchar_t* hidhide_path){
-	if (wstring(hidhide_path) != wstring(L"")){
-		hidhide_cloak_on(hidhide_path);
-		hidhide_dev_hide(hidhide_path, SDL_GetGamepadPathForID(id));
-	}
-	if (game_controllers.size() == 0){
-		game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
-		return true;
-	}
-	else if (!compare_guids(SDL_GetGamepadGUIDForID(SDL_GetGamepadID(game_controllers[game_controllers.size() - 1])), SDL_GetGamepadGUIDForID(id))){
+	if (wstring(hidhide_path) != wstring(L"")) hidhide_dev_hide(hidhide_path, SDL_GetGamepadPathForID(id));
+	device_usage = SDL_hid_get_device_info(SDL_hid_open_path(SDL_GetGamepadPathForID(id)))->usage;
+	if (SDL_IsGamepad(id) && (device_usage == 4 || device_usage == 5)){
 		game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
 		return true;
 	}

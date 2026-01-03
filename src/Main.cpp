@@ -2,15 +2,6 @@
 #define execution_delay 8
 #define app_name L"XInput.Emu"
 
-vector<SDL_Gamepad*> game_controllers;
-vector<PVIGEM_TARGET> emulated_controllers;
-SDL_Event event;
-SDL_Gamepad* game_controller;
-XINPUT_STATE xinput_state;
-DWORD xinput_index;
-Sint16 t_LT;
-Sint16 t_RT;
-
 // Callback for Force Feedback
 VOID CALLBACK force_feedback_callback(
 	PVIGEM_CLIENT Client,
@@ -20,7 +11,8 @@ VOID CALLBACK force_feedback_callback(
 	UCHAR LedNumber,
 	LPVOID UserData
 ){
-	SDL_RumbleGamepad(game_controller, (SmallMotor + 1) * 256 - 1, (LargeMotor + 1) * 256 - 1, execution_delay);
+	SDL_RumbleGamepad((SDL_Gamepad*)UserData, LargeMotor * 257, SmallMotor * 257, -1);
+	SDL_SetGamepadPlayerIndex((SDL_Gamepad*)UserData, LedNumber);
 }
 
 SERVICE_STATUS g_ServiceStatus = { 0 };
@@ -75,27 +67,42 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 
 	//Init SDL
 	SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");
+	SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3_SIXAXIS_DRIVER, "1");
+	SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
 	int sdl_error = SDL_Init(SDL_INIT_GAMEPAD);
 
-	DWORD win_last_error;
 	bool has_init = sdl_error >= 0 && vigem_client != nullptr && VIGEM_SUCCESS(vigem_error);
 	const wstring error_msg =
 		(wstring)L"ERROR: The program Could not initialize correctly\n"                              +
 		(wstring)L"SDL Error: " + convert_string_to_wstring((string)SDL_GetError()) + (wstring)L"\n" +
 		(wstring)L"ViGEm Error: " + to_wstring(vigem_error)                                          ;
 
+	vector<SDL_Gamepad*> game_controllers;
+	vector<PVIGEM_TARGET> emulated_controllers;
 	int index;
 	if (has_init){
+		SDL_Event event;
+		DWORD xinput_index;
+		XINPUT_STATE xinput_state;
+		Sint16 t_LT;
+		Sint16 t_RT;
+
 		wchar_t app_path[32768];
-		win_last_error = GetModuleFileNameW(NULL, app_path, 32768);
-		wstring hidhide_path;
-		bool hidhide_exists = get_hidhide_path(hidhide_path);
-		if (hidhide_exists) hidhide_app_reg(hidhide_path.c_str(), app_path);
+		GetModuleFileNameW(NULL, app_path, 32768);
+		wstring hidhide_path = L"";
+		if (get_hidhide_path(hidhide_path)){
+			hidhide_cloak_on(hidhide_path.c_str());
+			hidhide_app_reg(hidhide_path.c_str(), app_path);
+		}
+
+		DWORD next_tick;
+		DWORD sleep_time;
+
 		while (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
-			SDL_Delay(execution_delay);
+			next_tick = GetTickCount() + execution_delay;
 			while (SDL_PollEvent(&event)){
 				if (event.gdevice.type == SDL_EVENT_GAMEPAD_ADDED)
-				if (add_game_controller(game_controllers, event.gdevice.which, hidhide_exists ? hidhide_path.c_str() : L""))
+				if (add_game_controller(game_controllers, event.gdevice.which, hidhide_path.c_str()))
 				add_emulated_controller(vigem_client, emulated_controllers, vigem_last_error);
 
 				for (index = 0; index < game_controllers.size(); index++)
@@ -105,19 +112,20 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 					break;
 				}
 				else{
-					game_controller = game_controllers[index];
 					vigem_last_error = vigem_target_x360_get_user_index(vigem_client, emulated_controllers[index], &xinput_index);
-					win_last_error = XInputGetState(xinput_index, &xinput_state);
+					XInputGetState(xinput_index, &xinput_state);
 
-					update_xinput_gamepad(game_controller, xinput_state.Gamepad, t_LT, t_RT);
+					update_xinput_gamepad(game_controllers[index], xinput_state.Gamepad, t_LT, t_RT);
 
 					//Update Controller State
 					vigem_last_error = vigem_target_x360_update(vigem_client, emulated_controllers[index], *reinterpret_cast<XUSB_REPORT*>(&xinput_state.Gamepad));
 
 					//Vibration / Force Feedback
-					vigem_last_error = vigem_target_x360_register_notification(vigem_client, emulated_controllers[index], &force_feedback_callback, nullptr);
+					vigem_last_error = vigem_target_x360_register_notification(vigem_client, emulated_controllers[index], &force_feedback_callback, game_controllers[index]);
 				}
 			}
+			sleep_time = next_tick - GetTickCount();
+			if (sleep_time > 0 && sleep_time <= execution_delay) Sleep(sleep_time);
 		}
 	}
 	else MessageBoxW(NULL, error_msg.c_str(), app_name, MB_OK | MB_ICONERROR | MB_SERVICE_NOTIFICATION);
