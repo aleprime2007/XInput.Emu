@@ -60,6 +60,25 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	}
 	ReportServiceStatus(SERVICE_RUNNING, NO_ERROR, 0);
 
+	//Load Settings
+	wstring dev_hiding = L"";
+	wstring sixaxis = L"";
+	wstring dualshock4 = L"";
+	wstring dualsense = L"";
+	wstring joycons = L"";
+	wstring pro_controllers = L"";
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.emu", L"DevHiding", dev_hiding);
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.emu", L"Sixaxis", sixaxis);
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.emu", L"DualShock4", dualshock4);
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.emu", L"DualSense", dualsense);
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.emu", L"JoyCons", joycons);
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.emu", L"ProControllers", pro_controllers);
+	string v_sixaxis = sixaxis != L"True" ? "0x054c/0x0268," : "";
+	string v_dualshock4 = dualshock4 != L"True" ? "0x054c/0x05c4,0x054c/0x09cc," : "";
+	string v_dualsense = dualsense != L"True" ? "0x054c/0x0ce6,0x054c/0x0df2," : "";
+	string v_joycons = joycons != L"True" ? "0x057e/0x2006,0x057e/0x2007," : "";
+	string v_pro_controllers = joycons != L"True" ? "0x057e/0x2009," : "";
+
 	//Init ViGEm
 	PVIGEM_CLIENT vigem_client = vigem_alloc();
 	const VIGEM_ERROR vigem_error = vigem_connect(vigem_client);
@@ -69,6 +88,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");
 	SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3_SIXAXIS_DRIVER, "1");
 	SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
+	SDL_SetHint(SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES, (v_sixaxis + v_dualshock4 + v_dualsense + v_joycons + v_pro_controllers).c_str());
 	int sdl_error = SDL_Init(SDL_INIT_GAMEPAD);
 
 	bool has_init = sdl_error >= 0 && vigem_client != nullptr && VIGEM_SUCCESS(vigem_error);
@@ -94,6 +114,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 			hidhide_cloak_on(hidhide_path.c_str());
 			hidhide_app_reg(hidhide_path.c_str(), app_path);
 		}
+		if (dev_hiding != L"True") hidhide_path = L"";
 
 		DWORD next_tick;
 		DWORD sleep_time;

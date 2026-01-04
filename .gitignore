@@ -1,8 +1,8 @@
 # Folders
-/Debug/
-/Release/
 /Win32/
 /x64/
+/ConfigTool/bin/
+/ConfigTool/obj/
 /.vs/
 
 # Files

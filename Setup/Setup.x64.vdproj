@@ -49,6 +49,12 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_AA57D37DEBCF4C039995640425F89E9F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -161,6 +167,14 @@
         {
             "LaunchCondition"
             {
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_45E28A3E64FA49F1ADC83B38BA27C88F"
+                {
+                "Name" = "8:.NET Framework"
+                "Message" = "8:[VSDNETMSG]"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.7.2"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=863262"
+                }
             }
         }
         "File"
@@ -321,15 +335,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:XInput.Emu"
-        "ProductCode" = "8:{F9D1E275-D283-423B-9A23-AF975646A66A}"
-        "PackageCode" = "8:{ACC2E7D5-FC78-45EF-A632-5A3E5174ABDB}"
+        "ProductCode" = "8:{C107D2CC-BAE5-4AD0-9A34-FB11202B8B35}"
+        "PackageCode" = "8:{C7BD0CC1-0A61-4315-90C6-73A245BDCFE9}"
         "UpgradeCode" = "8:{A36D420D-EB3A-4A6C-B275-CF2FE399E37E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.2.2"
+        "ProductVersion" = "8:1.2.3"
         "Manufacturer" = "8:aleprime2007"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/aleprime2007/XInput.Emu"
@@ -386,6 +400,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_B851293452374EE180570E0CFCD731FB"
+            {
+            "Name" = "8:XInput.Emu Configuration Tool"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_AA57D37DEBCF4C039995640425F89E9F"
+            "Folder" = "8:_C2E03A8F04C64F95B57E8013D60CFB93"
+            "WorkingFolder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
@@ -879,6 +907,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA57D37DEBCF4C039995640425F89E9F"
+            {
+            "SourcePath" = "8:..\\ConfigTool\\obj\\x64\\Release\\ConfigTool.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{86C0DBA9-CE0F-42C7-AC46-3163954A17D6}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E07E09C2DE3247B0BF81077C4266858A"
             {
             "SourcePath" = "8:..\\x64\\Release\\XInput.Emu.exe"
