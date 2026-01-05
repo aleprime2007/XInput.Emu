@@ -35,6 +35,7 @@
 #define XBTN_DP_L  XUSB_GAMEPAD_DPAD_LEFT
 #define XBTN_DP_R  XUSB_GAMEPAD_DPAD_RIGHT
 
+const char* device_path;
 unsigned short device_usage;
 
 // ==========> ViGEmClient Functions <========== \\
@@ -59,8 +60,9 @@ void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET
 
 // Adds the connected game controllers to a given vector
 bool add_game_controller(vector<SDL_Gamepad*> &game_controllers, SDL_JoystickID id, const wchar_t* hidhide_path){
-	if (wstring(hidhide_path) != wstring(L"")) hidhide_dev_hide(hidhide_path, SDL_GetGamepadPathForID(id));
-	device_usage = SDL_hid_get_device_info(SDL_hid_open_path(SDL_GetGamepadPathForID(id)))->usage;
+	device_path = SDL_GetGamepadPathForID(id);
+	device_usage = SDL_hid_get_device_info(SDL_hid_open_path(device_path))->usage;
+	if (wstring(hidhide_path) != wstring(L"")) hidhide_dev_hide(hidhide_path, device_path);
 	if (SDL_IsGamepad(id) && (device_usage == 4 || device_usage == 5)){
 		game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
 		return true;

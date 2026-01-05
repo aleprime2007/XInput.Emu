@@ -87,7 +87,6 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	//Init SDL
 	SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");
 	SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3_SIXAXIS_DRIVER, "1");
-	SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
 	SDL_SetHint(SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES, (v_sixaxis + v_dualshock4 + v_dualsense + v_joycons + v_pro_controllers).c_str());
 	int sdl_error = SDL_Init(SDL_INIT_GAMEPAD);
 
