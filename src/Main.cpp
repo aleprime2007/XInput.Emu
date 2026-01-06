@@ -123,7 +123,7 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 			while (SDL_PollEvent(&event)){
 				if (event.gdevice.type == SDL_EVENT_GAMEPAD_ADDED)
 				if (add_game_controller(game_controllers, event.gdevice.which, hidhide_path.c_str()))
-				add_emulated_controller(vigem_client, emulated_controllers, vigem_last_error);
+				add_emulated_controller(vigem_client, emulated_controllers, get_xinput_product_id(SDL_GetJoystickTypeForID(event.gdevice.which)), vigem_last_error);
 
 				for (index = 0; index < game_controllers.size(); index++)
 				if (!SDL_GamepadConnected(game_controllers[index])){

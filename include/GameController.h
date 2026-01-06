@@ -38,11 +38,13 @@
 const char* device_path;
 unsigned short device_usage;
 
+
 // ==========> ViGEmClient Functions <========== \\
 
 // Adds a X360 emuated controller to the given vector
-void add_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, VIGEM_ERROR &vigem_last_error){
+void add_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET> &emulated_controllers, USHORT product_id, VIGEM_ERROR &vigem_last_error){
 	emulated_controllers.insert(emulated_controllers.end(), vigem_target_x360_alloc());
+	vigem_target_set_pid(emulated_controllers[emulated_controllers.size() - 1], product_id);
 	vigem_last_error = vigem_target_add(vigem_client, emulated_controllers[emulated_controllers.size() - 1]);
 }
 
@@ -60,17 +62,31 @@ void remove_emulated_controller(PVIGEM_CLIENT vigem_client, vector<PVIGEM_TARGET
 
 // Adds the connected game controllers to a given vector
 bool add_game_controller(vector<SDL_Gamepad*> &game_controllers, SDL_JoystickID id, const wchar_t* hidhide_path){
-	device_path = SDL_GetGamepadPathForID(id);
-	device_usage = SDL_hid_get_device_info(SDL_hid_open_path(device_path))->usage;
-	if (wstring(hidhide_path) != wstring(L"")) hidhide_dev_hide(hidhide_path, device_path);
-	if (SDL_IsGamepad(id) && (device_usage == 4 || device_usage == 5)){
-		game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
-		return true;
+	if (SDL_IsGamepad(id)){
+		device_path = SDL_GetGamepadPathForID(id);
+		device_usage = SDL_hid_get_device_info(SDL_hid_open_path(device_path))->usage;
+		if (wstring(hidhide_path) != wstring(L"")) hidhide_dev_hide(hidhide_path, device_path);
+		if (device_usage == 4 || device_usage == 5){
+			game_controllers.insert(game_controllers.end(), SDL_OpenGamepad(id));
+			return true;
+		}
 	}
 	SDL_FlushEvent(SDL_EVENT_GAMEPAD_ADDED);
 	return false;
 }
 
+// Removes the disconnected game controllers from a given vector
+void remove_game_controller(vector<SDL_Gamepad*> &game_controllers, int index){
+	if (index < game_controllers.size()){
+		SDL_CloseGamepad(game_controllers[index]);
+		game_controllers.erase(game_controllers.begin() + index);
+	}
+}
+
+
+// ==========> Common Functions <========== \\
+
+// Updates the state of a XINPUT_GAMEPAD with the inputs of a SDL_Gamepad*
 void update_xinput_gamepad(SDL_Gamepad* game_controller, XINPUT_GAMEPAD &xinput_gamepad, Sint16 &t_LT, Sint16 &t_RT){
 
 	//Triggers
@@ -104,10 +120,13 @@ void update_xinput_gamepad(SDL_Gamepad* game_controller, XINPUT_GAMEPAD &xinput_
 		SDL_GetGamepadButton(game_controller, BTN_DP_R)  * XBTN_DP_R  ;
 }
 
-// Removes the disconnected game controllers from a given vector
-void remove_game_controller(vector<SDL_Gamepad*> &game_controllers, int index){
-	if (index < game_controllers.size()){
-		SDL_CloseGamepad(game_controllers[index]);
-		game_controllers.erase(game_controllers.begin() + index);
+// Returns the Product ID equivalent to a SDL_JoystickType
+USHORT get_xinput_product_id(SDL_JoystickType joystick_type){
+	switch (joystick_type){
+		case SDL_JOYSTICK_TYPE_GUITAR:       return 0x02AE;
+		case SDL_JOYSTICK_TYPE_FLIGHT_STICK: return 0x02A1;
+		case SDL_JOYSTICK_TYPE_WHEEL:        return 0x02A0;
+		case SDL_JOYSTICK_TYPE_DANCE_PAD:    return 0x0291;
+		default:                             return 0x028E;
 	}
 }

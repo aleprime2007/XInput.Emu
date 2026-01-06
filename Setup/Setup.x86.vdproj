@@ -341,15 +341,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:XInput.Emu"
-        "ProductCode" = "8:{4AB3CFC6-B0BF-4EFB-9FD3-5798F05AA3C2}"
-        "PackageCode" = "8:{AB5831F9-672E-4BCA-A9C7-5B68E40385B9}"
+        "ProductCode" = "8:{4E3622C7-EABD-4186-8AE8-5DBE83D330F5}"
+        "PackageCode" = "8:{BCA38ABD-1BA9-40F3-87FD-5F348F9E37B8}"
         "UpgradeCode" = "8:{A36D420D-EB3A-4A6C-B275-CF2FE399E37E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.2.3"
+        "ProductVersion" = "8:1.2.4"
         "Manufacturer" = "8:aleprime2007"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/aleprime2007/XInput.Emu"
@@ -991,7 +991,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_878B5E058FC74C35B66F5528B4D3762E"
             {
-            "SourcePath" = "8:..\\ConfigTool\\obj\\x64\\Release\\ConfigTool.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"
