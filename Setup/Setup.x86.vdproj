@@ -120,10 +120,15 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.8"
                     {
-                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
-                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    "Name" = "8:Microsoft .NET Framework 4.8 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.8"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.14.0.x86"
+                    {
+                    "Name" = "8:Visual C++ \"14\" Runtime Libraries (x86)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.14.0.x86"
                     }
                 }
             }
@@ -177,7 +182,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:.NETFramework,Version=v4.7.2"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.8"
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=863262"
                 }
@@ -341,15 +346,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:XInput.Emu"
-        "ProductCode" = "8:{4E3622C7-EABD-4186-8AE8-5DBE83D330F5}"
-        "PackageCode" = "8:{BCA38ABD-1BA9-40F3-87FD-5F348F9E37B8}"
+        "ProductCode" = "8:{D80076A2-DB64-4BCA-BC52-B0F3BA426842}"
+        "PackageCode" = "8:{0875FCEF-049E-4BCB-A3DD-9900904B6603}"
         "UpgradeCode" = "8:{A36D420D-EB3A-4A6C-B275-CF2FE399E37E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.2.4"
+        "ProductVersion" = "8:1.2.5"
         "Manufacturer" = "8:aleprime2007"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/aleprime2007/XInput.Emu"
@@ -991,7 +996,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_878B5E058FC74C35B66F5528B4D3762E"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\ConfigTool\\obj\\x64\\Release\\ConfigTool.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_3AEB12CDF36647E99C8EB6C01EE5D327"

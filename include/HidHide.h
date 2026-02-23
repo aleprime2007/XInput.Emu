@@ -4,22 +4,19 @@
 #define hidhide_exe L"HidHideCLI.exe"
 #endif
 
+#define install_key L"SOFTWARE\\Nefarius Software Solutions e.U.\\HidHide"
+#define service_key L"SYSTEM\\CurrentControlSet\\Services\\HidHide"
+#define watchdog_key L"SYSTEM\\CurrentControlSet\\Services\\HidHideWatchdog.exe"
+
 wstring hidhide_command;
 
 // ==========> HidHide Functions <========== \\
 
 // Gets the currently installed HidHide Instance Path
-bool get_hidhide_path(wstring& hidhide_path){
-	wstring result;
-	const wchar_t* uninstall = L"SOFTWARE\\Nefarius Software Solutions e.U.\\HidHide";
-	bool service_exists = register_key_exists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\HidHide");
-	bool watchdog_exists = register_key_exists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\HidHideWatchdog.exe");
-	bool uninstall_exists = register_key_read_wstring(HKEY_LOCAL_MACHINE, uninstall, L"Path", result);
-	if (service_exists && watchdog_exists && uninstall_exists){
-		hidhide_path = result;
-		return true;
-	}
-	else return false;
+bool get_hidhide_path(wstring* hidhide_path){
+	if (register_key_exists(HKEY_LOCAL_MACHINE, service_key) && register_key_exists(HKEY_LOCAL_MACHINE, watchdog_key))
+	return register_key_read_wstring(HKEY_LOCAL_MACHINE, install_key, L"Path", hidhide_path);
+	return false;
 }
 
 string convert_to_device_instance_path(string device_symbolic_path){

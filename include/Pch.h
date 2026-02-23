@@ -13,13 +13,17 @@
 
 using namespace std;
 
+wstring_convert<codecvt_utf8<wchar_t>> converter;
+vector<wchar_t> buffer;
+HKEY hkey;
+DWORD dw_type;
+DWORD dw_size = 0;
 
 // ==========> Common Functions <========== \\
 
 // Converts a Wide String to a String
-string convert_wstring_to_string(const wstring &wstr){
+string convert_wstring_to_string(const wstring wstr){
 	try{
-		wstring_convert<codecvt_utf8<wchar_t>> converter;
 		return converter.to_bytes(wstr);
 	}
 	catch (...){
@@ -28,9 +32,8 @@ string convert_wstring_to_string(const wstring &wstr){
 }
 
 // Converts a String to a Wide String
-wstring convert_string_to_wstring(const string &str){
+wstring convert_string_to_wstring(const string str){
 	try{
-		wstring_convert<codecvt_utf8<wchar_t>> converter;
 		return converter.from_bytes(str);
 	}
 	catch (...){
@@ -42,35 +45,31 @@ wstring convert_string_to_wstring(const string &str){
 // ==========> Windows Functions <========== \\
 
 // Returns True if the given Register Key Exists
-bool register_key_exists(HKEY hkey, LPCWSTR path){
-	bool result = false;
-	HKEY output_hkey;
-	LONG l_res = RegOpenKeyExW(hkey, path, 0, KEY_READ, &output_hkey);
-	result = l_res == ERROR_SUCCESS;
-	if (result) RegCloseKey(output_hkey);
-	return result;
+bool register_key_exists(HKEY hkey_root, LPCWSTR sub_key){
+	if (RegOpenKeyExW(hkey_root, sub_key, 0, KEY_READ, &hkey) == ERROR_SUCCESS){
+		RegCloseKey(hkey);
+		return true;
+	}
+	return false;
 }
 
 // Returns a string value of a given register key
-bool register_key_read_wstring(HKEY hkey_root, const wstring &sub_key, const wstring &value_name, wstring &result){
-	HKEY hkey;
-	DWORD dw_type;
-	DWORD dw_size = 0;
+bool register_key_read_wstring(HKEY hkey_root, LPCWSTR sub_key, LPCWSTR value_name, wstring* result){
 
-	if (RegOpenKeyExW(hkey_root, sub_key.c_str(), 0, KEY_READ, &hkey) != ERROR_SUCCESS) return false;
+	if (RegOpenKeyExW(hkey_root, sub_key, 0, KEY_READ, &hkey) != ERROR_SUCCESS) return false;
 
-	if (RegQueryValueExW(hkey, value_name.c_str(), NULL, &dw_type, NULL, &dw_size) != ERROR_SUCCESS || dw_type != REG_SZ){
+	if (RegQueryValueExW(hkey, value_name, NULL, &dw_type, NULL, &dw_size) != ERROR_SUCCESS || dw_type != REG_SZ){
 		RegCloseKey(hkey);
 		return false;
 	}
 
-	vector<wchar_t> buffer(dw_size / sizeof(wchar_t));
-	if (RegQueryValueExW(hkey, value_name.c_str(), NULL, NULL, (LPBYTE)buffer.data(), &dw_size) != ERROR_SUCCESS){
+	buffer = vector<wchar_t>(dw_size);
+	if (RegQueryValueExW(hkey, value_name, NULL, NULL, (LPBYTE)buffer.data(), &dw_size) != ERROR_SUCCESS){
 		RegCloseKey(hkey);
 		return false;
 	}
 
+	*result = buffer.data();
 	RegCloseKey(hkey);
-	result = buffer.data();
 	return true;
 }

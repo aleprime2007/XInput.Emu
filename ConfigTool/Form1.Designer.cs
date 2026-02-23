@@ -75,6 +75,7 @@ namespace ConfigTool
             this.checkBox6.TabIndex = 5;
             this.checkBox6.Text = "Switch Pro Controller Detection";
             this.checkBox6.UseVisualStyleBackColor = true;
+            this.checkBox6.Click += new System.EventHandler(this.checkBox_Click);
             // 
             // checkBox5
             // 
@@ -85,6 +86,7 @@ namespace ConfigTool
             this.checkBox5.TabIndex = 4;
             this.checkBox5.Text = "Switch JoyCons Detection";
             this.checkBox5.UseVisualStyleBackColor = true;
+            this.checkBox5.Click += new System.EventHandler(this.checkBox_Click);
             // 
             // checkBox4
             // 
@@ -95,6 +97,7 @@ namespace ConfigTool
             this.checkBox4.TabIndex = 3;
             this.checkBox4.Text = "DualSense Detection";
             this.checkBox4.UseVisualStyleBackColor = true;
+            this.checkBox4.Click += new System.EventHandler(this.checkBox_Click);
             // 
             // checkBox2
             // 
@@ -105,6 +108,7 @@ namespace ConfigTool
             this.checkBox2.TabIndex = 1;
             this.checkBox2.Text = "DualShock3/SIXAXIS Detection";
             this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.Click += new System.EventHandler(this.checkBox_Click);
             // 
             // checkBox3
             // 
@@ -115,6 +119,7 @@ namespace ConfigTool
             this.checkBox3.TabIndex = 2;
             this.checkBox3.Text = "DualShock4 Detection";
             this.checkBox3.UseVisualStyleBackColor = true;
+            this.checkBox3.Click += new System.EventHandler(this.checkBox_Click);
             // 
             // checkBox1
             // 
@@ -125,9 +130,11 @@ namespace ConfigTool
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "HidHide Device Auto Hidding";
             this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.Click += new System.EventHandler(this.checkBox_Click);
             // 
             // button1
             // 
+            this.button1.Enabled = false;
             this.button1.Location = new System.Drawing.Point(140, 215);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 23);

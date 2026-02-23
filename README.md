@@ -27,7 +27,8 @@ Almost All controllers are compatible, But here is a list of some known controll
 <h2>Installation Process</h2>
 Before installing XInput.Emu, you must install some dependencies in order to get XInput.Emu working correctly:
 
-- [DirectX](https://www.microsoft.com/en-us/download/details.aspx?id=35)
+- [Visual C++ Redistributable v14](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version)
+- [.NET Framework 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48)
 - [ViGEm Bus](https://github.com/nefarius/ViGEmBus/releases/latest)
 - [HidHide](https://github.com/nefarius/HidHide/releases/latest)
 

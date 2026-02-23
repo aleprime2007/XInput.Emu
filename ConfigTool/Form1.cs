@@ -42,7 +42,6 @@ namespace ConfigTool
                 configKey.SetValue("ProControllers", checkBox6.Checked.ToString());
                 service_command.Arguments = "start XInput.Emu";
                 Process.Start(service_command).WaitForExit();
-                button1.Enabled = true;
                 checkBox1.Enabled = true;
                 checkBox2.Enabled = true;
                 checkBox3.Enabled = true;
@@ -68,6 +67,11 @@ namespace ConfigTool
                 if (configKey.GetValue("JoyCons") != null) checkBox5.Checked = configKey.GetValue("JoyCons").ToString() == "True";
                 if (configKey.GetValue("ProControllers") != null) checkBox6.Checked = configKey.GetValue("ProControllers").ToString() == "True";
             }
+        }
+
+        private void checkBox_Click(object sender, EventArgs e)
+        {
+            button1.Enabled = true;
         }
     }
 }
