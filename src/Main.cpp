@@ -1,19 +1,6 @@
-#include <GameController.h>
+#include <Gamepad.hpp>
 #define execution_delay 8
 #define app_name L"XInput.Emu"
-
-// Callback for Force Feedback
-VOID CALLBACK force_feedback_callback(
-	PVIGEM_CLIENT Client,
-	PVIGEM_TARGET Target,
-	UCHAR LargeMotor,
-	UCHAR SmallMotor,
-	UCHAR LedNumber,
-	LPVOID UserData
-){
-	SDL_RumbleGamepad((SDL_Gamepad*)UserData, LargeMotor * 257, SmallMotor * 257, -1);
-	SDL_SetGamepadPlayerIndex((SDL_Gamepad*)UserData, LedNumber);
-}
 
 SERVICE_STATUS g_ServiceStatus = { 0 };
 SERVICE_STATUS_HANDLE g_StatusHandle = NULL;
@@ -61,12 +48,14 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	ReportServiceStatus(SERVICE_RUNNING, NO_ERROR, 0);
 
 	//Load Settings
-	wstring dev_hiding = L"";
-	wstring sixaxis = L"";
-	wstring dualshock4 = L"";
-	wstring dualsense = L"";
-	wstring joycons = L"";
-	wstring pro_controllers = L"";
+	wstring ds4_mode = L"False";
+	wstring dev_hiding = L"True";
+	wstring sixaxis = L"True";
+	wstring dualshock4 = L"True";
+	wstring dualsense = L"True";
+	wstring joycons = L"True";
+	wstring pro_controllers = L"True";
+	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.Emu", L"DS4Mode", &ds4_mode);
 	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.Emu", L"DevHiding", &dev_hiding);
 	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.Emu", L"Sixaxis", &sixaxis);
 	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.Emu", L"DualShock4", &dualshock4);
@@ -74,8 +63,8 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.Emu", L"JoyCons", &joycons);
 	register_key_read_wstring(HKEY_LOCAL_MACHINE, L"SOFTWARE\\XInput.Emu", L"ProControllers", &pro_controllers);
 	string v_sixaxis = sixaxis != L"True" ? "0x054c/0x0268," : "";
-	string v_dualshock4 = dualshock4 != L"True" ? "0x054c/0x05c4,0x054c/0x09cc," : "";
-	string v_dualsense = dualsense != L"True" ? "0x054c/0x0ce6,0x054c/0x0df2," : "";
+	string v_dualshock4 = dualshock4 != L"True" || ds4_mode == L"True" ? "0x054c/0x05c4,0x054c/0x09cc," : "";
+	string v_dualsense = dualsense != L"True" || ds4_mode == L"True" ? "0x054c/0x0ce6,0x054c/0x0df2," : "";
 	string v_joycons = joycons != L"True" ? "0x057e/0x2006,0x057e/0x2007," : "";
 	string v_pro_controllers = pro_controllers != L"True" ? "0x057e/0x2009," : "";
 
@@ -96,19 +85,14 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 		(wstring)L"SDL Error: " + convert_string_to_wstring((string)SDL_GetError()) + (wstring)L"\n" +
 		(wstring)L"ViGEm Error: " + to_wstring(vigem_error)                                          ;
 
-	vector<GAMEPAD> gamepads;
-	UINT index;
+	vector<X360_GAMEPAD> x360_gamepads;
+	vector<DS4_GAMEPAD> ds4_gamepads;
+	wstring hidhide_path = L"";
+	size_t index;
 	if (has_init){
 		SDL_Event event;
-		SDL_Gamepad* gamepad;
-		XINPUT_STATE xinput_state;
-		XUSB_REPORT* vigem_report;
-		Sint16 t_LT;
-		Sint16 t_RT;
-
 		wchar_t app_path[32768];
 		GetModuleFileNameW(NULL, app_path, 32768);
-		wstring hidhide_path = L"";
 		if (get_hidhide_path(&hidhide_path)){
 			hidhide_cloak_on(hidhide_path.c_str());
 			hidhide_app_reg(hidhide_path.c_str(), app_path);
@@ -117,27 +101,30 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 
 		DWORD next_tick;
 		DWORD sleep_time;
+		float sensor_count;
+		int battery_percent;
 
 		while (g_ServiceStatus.dwCurrentState == SERVICE_RUNNING){
 			next_tick = GetTickCount() + execution_delay;
 			while (SDL_PollEvent(&event)){
-				if (event.gdevice.type == SDL_EVENT_GAMEPAD_ADDED) add_gamepad(&gamepads, vigem_client, &vigem_last_error, event.gdevice.which, hidhide_path.c_str());
-				else for (index = 0; index < gamepads.size(); index++){
-					gamepad = SDL_GetGamepadFromID(gamepads[index].joystick_id);
-					if (!SDL_GamepadConnected(gamepad)){
-						remove_gamepad(&gamepads, vigem_client, &vigem_last_error, index);
+				if (ds4_mode != L"True"){
+					if (event.gdevice.type == SDL_EVENT_GAMEPAD_ADDED) add_x360_gamepad(&x360_gamepads, vigem_client, &vigem_last_error, event.gdevice.which, hidhide_path.c_str());
+					else for (index = 0; index < x360_gamepads.size(); index++) if (!SDL_GamepadConnected(x360_gamepads[index].gamepad)){
+						remove_x360_gamepad(&x360_gamepads, vigem_client, &vigem_last_error, index, hidhide_path.c_str());
+						break;
+					}
+					else x360_gamepads[index].update_gamepad(vigem_client, &vigem_last_error);
+				}
+				else{
+					if (event.gdevice.type == SDL_EVENT_GAMEPAD_ADDED) add_ds4_gamepad(&ds4_gamepads, vigem_client, &vigem_last_error, event.gdevice.which, hidhide_path.c_str());
+					else for (index = 0; index < ds4_gamepads.size(); index++) if (!SDL_GamepadConnected(ds4_gamepads[index].gamepad)){
+						remove_ds4_gamepad(&ds4_gamepads, vigem_client, &vigem_last_error, index, hidhide_path.c_str());
 						break;
 					}
 					else{
-						XInputGetState(gamepads[index].xinput_index, &xinput_state);
-						update_xinput_gamepad(SDL_GetGamepadFromID(gamepads[index].joystick_id), &xinput_state.Gamepad, &t_LT, &t_RT);
-
-						//Update Controller State
-						vigem_report = reinterpret_cast<XUSB_REPORT*>(&xinput_state.Gamepad);
-						vigem_last_error = vigem_target_x360_update(vigem_client, gamepads[index].vigem_target, *vigem_report);
-
-						//Vibration / Force Feedback
-						vigem_last_error = vigem_target_x360_register_notification(vigem_client, gamepads[index].vigem_target, &force_feedback_callback, gamepad);
+						battery_percent = event.jbattery.percent * 255 / 100;
+						ds4_gamepads[index].ds4_report.Report.bBatteryLvl = *reinterpret_cast<BYTE*>(&battery_percent);
+						ds4_gamepads[index].update_gamepad(vigem_client, &vigem_last_error);
 					}
 				}
 			}
@@ -147,6 +134,8 @@ VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv){
 	}
 	else MessageBoxW(NULL, error_msg.c_str(), app_name, MB_OK | MB_ICONERROR | MB_SERVICE_NOTIFICATION);
 
+	while (x360_gamepads.size() > 0) remove_x360_gamepad(&x360_gamepads, vigem_client, &vigem_last_error, x360_gamepads.size() - 1, hidhide_path.c_str());
+	while (ds4_gamepads.size() > 0) remove_ds4_gamepad(&ds4_gamepads, vigem_client, &vigem_last_error, ds4_gamepads.size() - 1, hidhide_path.c_str());
 	if (vigem_client != nullptr && VIGEM_SUCCESS(vigem_error)){
 		vigem_disconnect(vigem_client);
 		vigem_free(vigem_client);

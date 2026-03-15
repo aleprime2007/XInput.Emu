@@ -26,6 +26,7 @@ namespace ConfigTool
             if (configKey != null && msg == DialogResult.Yes)
             {
                 button1.Enabled = false;
+                comboBox1.Enabled = false;
                 checkBox1.Enabled = false;
                 checkBox2.Enabled = false;
                 checkBox3.Enabled = false;
@@ -34,6 +35,7 @@ namespace ConfigTool
                 checkBox6.Enabled = false;
                 service_command.Arguments = "stop XInput.Emu";
                 Process.Start(service_command).WaitForExit();
+                configKey.SetValue("DS4Mode", comboBox1.SelectedIndex == 1 ? "True" : "False");
                 configKey.SetValue("DevHiding", checkBox1.Checked.ToString());
                 configKey.SetValue("Sixaxis", checkBox2.Checked.ToString());
                 configKey.SetValue("DualShock4", checkBox3.Checked.ToString());
@@ -42,6 +44,7 @@ namespace ConfigTool
                 configKey.SetValue("ProControllers", checkBox6.Checked.ToString());
                 service_command.Arguments = "start XInput.Emu";
                 Process.Start(service_command).WaitForExit();
+                comboBox1.Enabled = true;
                 checkBox1.Enabled = true;
                 checkBox2.Enabled = true;
                 checkBox3.Enabled = true;
@@ -58,8 +61,10 @@ namespace ConfigTool
             service_command.Verb = "runas";
             service_command.CreateNoWindow = true;
             service_command.UseShellExecute = false;
+            comboBox1.SelectedIndex = 0;
             if (configKey != null)
             {
+                if (configKey.GetValue("DS4Mode") != null) comboBox1.SelectedIndex = configKey.GetValue("DS4Mode").ToString() == "True" ? 1 : 0;
                 if (configKey.GetValue("DevHiding") != null) checkBox1.Checked = configKey.GetValue("DevHiding").ToString() == "True";
                 if (configKey.GetValue("Sixaxis") != null) checkBox2.Checked = configKey.GetValue("Sixaxis").ToString() == "True";
                 if (configKey.GetValue("DualShock4") != null) checkBox3.Checked = configKey.GetValue("DualShock4").ToString() == "True";
@@ -70,6 +75,11 @@ namespace ConfigTool
         }
 
         private void checkBox_Click(object sender, EventArgs e)
+        {
+            button1.Enabled = true;
+        }
+
+        private void comboBox_Click(object sender, EventArgs e)
         {
             button1.Enabled = true;
         }

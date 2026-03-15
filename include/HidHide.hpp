@@ -42,7 +42,7 @@ void hidhide_app_reg(const wchar_t* hidhide_path, const wchar_t* app_path){
 }
 
 // Revokes ability to see hidden devices
-void hidhide_app_unreg(const wchar_t* hidhide_path, const wchar_t* app_path) {
+void hidhide_app_unreg(const wchar_t* hidhide_path, const wchar_t* app_path){
 	hidhide_command = L"--app-unreg \"" + (wstring)app_path + L"\"";
 	ShellExecuteW(NULL, L"open", hidhide_exe, hidhide_command.c_str(), hidhide_path, SW_HIDE);
 }
